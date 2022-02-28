@@ -23,11 +23,11 @@ from utils import nearest_neighbors, get_topic_coherence, get_topic_diversity
 parser = argparse.ArgumentParser(description='The Embedded Topic Model')
 
 ### data and file related arguments
-parser.add_argument('--dataset', type=str, default='20ng', help='name of corpus')
-parser.add_argument('--data_path', type=str, default='data/20ng', help='directory containing data')
-parser.add_argument('--emb_path', type=str, default='data/20ng_embeddings.txt', help='directory containing word embeddings')
-parser.add_argument('--save_path', type=str, default='./results', help='path to save results')
-parser.add_argument('--batch_size', type=int, default=1000, help='input batch size for training')
+parser.add_argument('--dataset', type=str, default='song_model', help='name of corpus')
+parser.add_argument('--data_path', type=str, default='/home/el3078/song-proj/data/etm_data', help='directory containing data')
+parser.add_argument('--emb_path', type=str, default='/home/el3078/song-proj/data/embeds/embeddings.txt', help='directory containing word embeddings')
+parser.add_argument('--save_path', type=str, default='/home/el3078/song-proj/data/results', help='path to save results')
+parser.add_argument('--batch_size', type=int, default=500, help='input batch size for training')
 
 ### model-related arguments
 parser.add_argument('--num_topics', type=int, default=50, help='number of topics')
@@ -40,7 +40,7 @@ parser.add_argument('--train_embeddings', type=int, default=0, help='whether to 
 ### optimization-related arguments
 parser.add_argument('--lr', type=float, default=0.005, help='learning rate')
 parser.add_argument('--lr_factor', type=float, default=4.0, help='divide learning rate by this...')
-parser.add_argument('--epochs', type=int, default=20, help='number of epochs to train...150 for 20ng 100 for others')
+parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train...150 for 20ng 100 for others')
 parser.add_argument('--mode', type=str, default='train', help='train or eval model')
 parser.add_argument('--optimizer', type=str, default='adam', help='choice of optimizer')
 parser.add_argument('--seed', type=int, default=2019, help='random seed (default: 1)')
@@ -52,7 +52,7 @@ parser.add_argument('--anneal_lr', type=int, default=0, help='whether to anneal 
 parser.add_argument('--bow_norm', type=int, default=1, help='normalize the bows or not')
 
 ### evaluation, visualization, and logging-related arguments
-parser.add_argument('--num_words', type=int, default=10, help='number of words for topic viz')
+parser.add_argument('--num_words', type=int, default=5, help='number of words for topic viz')
 parser.add_argument('--log_interval', type=int, default=2, help='when to log training')
 parser.add_argument('--visualize_every', type=int, default=10, help='when to visualize results')
 parser.add_argument('--eval_batch_size', type=int, default=1000, help='input batch size for evaluation')
@@ -62,13 +62,14 @@ parser.add_argument('--td', type=int, default=0, help='whether to compute topic 
 
 args = parser.parse_args()
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 print('\n')
-np.random.seed(args.seed)
-torch.manual_seed(args.seed)
-if torch.cuda.is_available():
-    torch.cuda.manual_seed(args.seed)
+#np.random.seed(args.seed)
+#torch.manual_seed(args.seed)
+#if torch.cuda.is_available():
+ #   torch.cuda.manual_seed(args.seed)
 
 ## get data
 # 1. vocabulary

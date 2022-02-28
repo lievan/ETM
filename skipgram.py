@@ -11,9 +11,9 @@ import re
 parser = argparse.ArgumentParser(description='The Embedded Topic Model')
 
 ### data and file related arguments
-parser.add_argument('--data_dir', type=str, default='', help='a directory containing the corpus of song comments')
+parser.add_argument('--data_dir', type=str, default='../../../../local-scratch1/data/shared/netease/data1/songs', help='a directory containing the corpus of song comments')
 parser.add_argument('--vocab_file', type=str, default='', help='a .json vocab file for the data post processing, in order to save embeddings only for the words needed')
-parser.add_argument('--emb_file', type=str, default='embeddings.txt', help='file to save the word embeddings')
+parser.add_argument('--emb_file', type=str, default='/home/el3078/song-proj/data/embeds/embeddings.txt', help='file to save the word embeddings')
 parser.add_argument('--dim_rho', type=int, default=300, help='dimensionality of the word embeddings')
 parser.add_argument('--min_count', type=int, default=2, help='minimum term frequency (to define the vocabulary)')
 parser.add_argument('--sg', type=int, default=1, help='whether to use skip-gram')
@@ -30,11 +30,11 @@ class MySentences(object):
         self.data_dir = data_dir
  
     def __iter__(self):
-        for filename in os.listdir(self.data_dir):
+        for filename in os.listdir(self.data_dir)[:100]:
             try:
                 dataframe = pd.read_csv(os.path.join(self.data_dir, filename), sep='\t', index_col=0)
                 for index, row in dataframe.iterrows():
-                    yield row['comment_text'].split()
+                    yield list(row['comment_text'])
             except pd.errors.EmptyDataError:
                 pass
 

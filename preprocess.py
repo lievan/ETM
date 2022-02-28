@@ -6,18 +6,17 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from scipy.io import savemat
 from scipy import sparse
-
-
+import string
 
 parser = argparse.ArgumentParser(description='Song CSVs to ETM data')
 
-parser.add_argument('--data_dir', type=str, help='path to song dir')
+parser.add_argument('--data_dir', default='../../../../local-scratch1/data/shared/netease/data1/songs', type=str, help='path to song dir')
 
-parser.add_argument('--save_dir', type=str, help='folder to save preprocessed data')
+parser.add_argument('--save_dir', default='/home/el3078/song-proj/data/etm_data/', type=str, help='folder to save preprocessed data')
 
-parser.add_argument('--min_df',default=1, type=float, help='min document frequency')
+parser.add_argument('--min_df',default=10, type=float, help='min document frequency')
 
-parser.add_argument('--max_df',default=0.8, type=float, help='max document frequency')
+parser.add_argument('--max_df',default=0.7, type=float, help='max document frequency')
 
 args = parser.parse_args()
 
@@ -26,12 +25,14 @@ min_df = args.min_df
 max_df = args.max_df
 
 # Read stopwords
-stops = set()
-
+with open('/home/el3078/song-proj/data/stopwords/stopwords-zh.txt', 'r') as f:
+    stops = set([word.replace('\n', '') for word in f.readlines()] + list(string.ascii_lowercase) + 
+                list(string.ascii_uppercase) + list(string.punctuation) + list("0123456789"))
+print(stops)
 # Read data
 print('reading song files...')
 docs =[]
-for filename in os.listdir(args.data_dir):
+for filename in os.listdir(args.data_dir)[:100]:
     try:
         dataframe = pd.read_csv(os.path.join(args.data_dir, filename), sep='\t', index_col=0)
         for index, row in dataframe.iterrows():
@@ -41,7 +42,11 @@ for filename in os.listdir(args.data_dir):
 
 # Create count vectorizer
 print('counting document frequency of words...')
-cvectorizer = CountVectorizer(min_df=min_df, max_df=max_df, stop_words=stops)
+
+def chinese(doc):
+    return list(doc)
+
+cvectorizer = CountVectorizer(min_df=min_df, tokenizer=chinese, preprocessor=chinese, max_df=max_df, stop_words=stops)
 cvz = cvectorizer.fit_transform(docs).sign()
 
 # Get vocabulary
@@ -86,9 +91,9 @@ word2id = dict([(w, j) for j, w in enumerate(vocab)])
 id2word = dict([(j, w) for j, w in enumerate(vocab)])
 print('  vocabulary after removing words not in train: {}'.format(len(vocab)))
 
-docs_tr = [[word2id[w] for w in docs[idx_permute[idx_d]].split() if w in word2id] for idx_d in range(trSize)]
-docs_ts = [[word2id[w] for w in docs[idx_permute[idx_d+trSize]].split() if w in word2id] for idx_d in range(tsSize)]
-docs_va = [[word2id[w] for w in docs[idx_permute[idx_d+trSize+tsSize]].split() if w in word2id] for idx_d in range(vaSize)]
+docs_tr = [[word2id[w] for w in list(docs[idx_permute[idx_d]]) if w in word2id] for idx_d in range(trSize)]
+docs_ts = [[word2id[w] for w in list(docs[idx_permute[idx_d+trSize]]) if w in word2id] for idx_d in range(tsSize)]
+docs_va = [[word2id[w] for w in list(docs[idx_permute[idx_d+trSize+tsSize]]) if w in word2id] for idx_d in range(vaSize)]
 del docs
 
 print('  number of documents (train): {} [this should be equal to {}]'.format(len(docs_tr), trSize))

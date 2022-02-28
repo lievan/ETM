@@ -9,7 +9,9 @@ from utils import nearest_neighbors, get_topic_coherence, get_topic_diversity
 
 from torch import nn, optim
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
+
 
 class ETM(nn.Module):
     def __init__(self, num_topics, vocab_size, t_hidden_size, rho_size, emsize, 
